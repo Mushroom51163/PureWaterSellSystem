@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>水站信息</title>
+    <script type="text/javascript"
+            src="http://api.map.baidu.com/api?v=2.0&ak=4bdDZdt9K64OhxaasfIwYFGTjf7wCPZv"></script>
+    <script src="js/jquery.js"></script>
+    <script src="js/cookie_util.js" type="text/javascript"></script>
+
+    <link href="assets/plugins/sweetalert/dist/sweetalert.css" rel="stylesheet" type="text/css">
+    <script src="assets/plugins/sweetalert/dist/sweetalert.min.js"></script>
+
+    <style type="text/css">
+        html {
+            height: 100%;
+        }
+        body {
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<button onclick="window.location.replace('http://localhost:8088/')">返回商城</button>
+<div id="map"></div>
+<script type="text/javascript">
+
+    var map = new BMap.Map("map");
+    map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+
+    var point = new BMap.Point(108.710749, 34.335688);
+    map.centerAndZoom(point, 15);
+
+
+    var stations = new Array(new BMap.Point(108.681153, 34.327185), new BMap.Point(108.704973, 34.348394), new BMap.Point(108.737037, 34.348517), new BMap.Point(108.726166, 34.318566), new BMap.Point(108.716468, 34.342537), new BMap.Point(108.698933, 34.342716));
+    var stationsName = new Array("中华路加盟店", "玉泉路加盟店", "新兴路加盟店", "陈阳寨加盟店", "中宏加盟店", "陶研路加盟店");
+    point = new BMap.Point(108.681153, 34.327185);//中华路加盟店
+    var marker = new BMap.Marker(point);        // 创建标注
+    map.addOverlay(marker);                     // 将标注添加到地图中
+    marker.addEventListener("click", function () {
+        swal("中华路加盟店\n订水电话：02933324981\n地址：咸阳市渭阳西路鑫太子酒店一楼门面房");
+    });
+    var lable = new BMap.Label("中华路加盟店", ({position: point}));
+    map.addOverlay(lable);
+
+    point = new BMap.Point(108.704973, 34.348394);//玉泉路加盟店
+    var marker = new BMap.Marker(point);        // 创建标注
+    map.addOverlay(marker);                     // 将标注添加到地图中
+    marker.addEventListener("click", function () {
+        swal("玉泉路加盟店\n订水电话：02933558563\n地址：咸阳市玉泉东路秦都区干休所门面房");
+    });
+    lable = new BMap.Label("玉泉路加盟店", ({position: point}));
+    map.addOverlay(lable);
+
+    point = new BMap.Point(108.737037, 34.348517);//新兴路加盟店
+    var marker = new BMap.Marker(point);        // 创建标注
+    map.addOverlay(marker);                     // 将标注添加到地图中
+    marker.addEventListener("click", function () {
+        swal("新兴路加盟店\n订水电话：02933228963\n地址：咸阳市凤凰嘉园第1幢1单元3号门面房");
+    });
+    lable = new BMap.Label("新兴路加盟店", ({position: point}));
+    map.addOverlay(lable);
+
+    point = new BMap.Point(108.726166, 34.318566);//陈阳寨加盟店
+    var marker = new BMap.Marker(point);        // 创建标注
+    map.addOverlay(marker);                     // 将标注添加到地图中
+    marker.addEventListener("click", function () {
+        swal("陈阳寨加盟店\n订水电话：02933686306\n地址：咸阳孔家寨170#");
+    });
+    lable = new BMap.Label("陈阳寨加盟店", ({position: point}));
+    map.addOverlay(lable);
+
+    point = new BMap.Point(108.716468, 34.342537);//中宏加盟店
+    var marker = new BMap.Marker(point);        // 创建标注
+    map.addOverlay(marker);                     // 将标注添加到地图中
+    marker.addEventListener("click", function () {
+        swal("中宏加盟店\n订水电话：02933268412\n地址：咸阳市中宏香榭一号楼二单元101室门面房");
+    });
+    lable = new BMap.Label("中宏加盟店", ({position: point}));
+    map.addOverlay(lable);
+
+    point = new BMap.Point(108.698933, 34.342716);//陶研路加盟店
+    var marker = new BMap.Marker(point);        // 创建标注
+    map.addOverlay(marker);                     // 将标注添加到地图中
+    marker.addEventListener("click", function () {
+        swal("陶研路加盟店\n订水电话：02933335569\n地址：咸阳市人民西路泰丰市场永嘉兰庭门市");
+    });
+    lable = new BMap.Label("陶研路加盟店", ({position: point}));
+    map.addOverlay(lable);
+</script>
+
+
+</body>
+</html>

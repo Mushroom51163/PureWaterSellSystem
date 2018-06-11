@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="A fully featured admin theme which can be used to build CRM, CMS, etc.">
+    <meta name="author" content="Coderthemes">
+
+    <link rel="shortcut icon" href="assets/images/favicon_1.ico">
+
+    <title>登录</title>
+    <link href="assets/plugins/sweetalert/dist/sweetalert.css" rel="stylesheet" type="text/css">
+    <script src="assets/plugins/sweetalert/dist/sweetalert.min.js"></script>
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="assets/css/core.css" rel="stylesheet" type="text/css">
+    <link href="assets/css/icons.css" rel="stylesheet" type="text/css">
+    <link href="assets/css/components.css" rel="stylesheet" type="text/css">
+    <link href="assets/css/pages.css" rel="stylesheet" type="text/css">
+    <link href="assets/css/menu.css" rel="stylesheet" type="text/css">
+    <link href="assets/css/responsive.css" rel="stylesheet" type="text/css">
+    <script src="js/jquery.js" type="text/javascript"></script>
+    <script src="js/cookie_util.js" type="text/javascript"></script>
+    <script src="assets/js/modernizr.min.js"></script>
+    <script type="text/javascript">
+        function keyLogin() {
+            if (event.keyCode == 13) {
+                document.getElementById("submit").click();
+            }
+        }
+
+        function UserLogin() {
+            var userNick = $("#userNick").val();
+            var userPwd = $("#userPwd").val();
+            var userType = $('#typeOfUser input:radio:checked').val();
+            if(userNick.trim()==""){
+                swal("用户名不能为空！");
+            }else if(userPwd.trim()==""){
+                swal("密码不能为空！");
+            }else{
+                $.ajax({
+                    url: "/checkLogin",
+                    type: "post",
+                    data: {"userNick": userNick, "userPwd": userPwd, "userType": userType},
+                    dataType: "json",
+                    success: function (result) {
+                        if (result.status == 1) {
+                            addCookie("userNickname", userNick, 24);
+                            alert(result.msg);
+                            if (userType == "用户") {
+                                addCookie("userType", "用户", 24);
+                                window.location.replace("http://localhost:8088/home");
+                            } else if (userType == "派送员") {
+                                addCookie("userType", "派送员", 24);
+                                window.location.replace("http://localhost:8088/");
+                            } else {
+                                if(result.data.adminType=="总站"){
+                                    addCookie("userType", result.data.adminType, 24);
+                                    window.location.replace("http://localhost:8088/");
+                                }else{
+                                    addCookie("userType", result.data.adminType , 24);
+                                    window.location.replace("http://localhost:8088/");
+                                }
+                            }
+                        } else {
+                            alert(result.msg)
+                        }
+                    },
+                    error: function () {
+                        alert("请求失败");
+                    }
+                });
+            }
+
+        }
+
+    </script>
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+
+</head>
+<body onkeydown="keyLogin();">
+
+
+<div class="wrapper-page">
+    <div class="panel panel-color panel-primary panel-pages">
+        <div class="panel-heading bg-img">
+            <div class="bg-overlay"></div>
+            <h3 class="text-center m-t-10 text-white"> 登录到 <strong>iDrink</strong></h3>
+        </div>
+
+        <div class="panel-body" id="typeOfUser">
+            <center>
+                <input type="radio" name="userType" value="用户" checked>我是用户
+                <input type="radio" name="userType" value="派送员">我是派送员
+                <input type="radio" name="userType" value="管理员">我是管理员
+            </center>
+
+            <div class="form-group">
+                <div class="col-xs-12">
+                    <input class="form-control input-lg" type="text" required="" placeholder="用户名" id="userNick">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-xs-12">
+                    <input class="form-control input-lg" type="password" required="" placeholder="密码"
+                           id="userPwd">
+                </div>
+            </div>
+
+
+            <div class="form-group text-center m-t-40">
+                <div class="col-xs-12">
+                    <button class="btn btn-primary btn-lg w-lg waves-effect waves-light" id="submit"
+                            onclick="UserLogin()">登录
+                    </button>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+    var resizefunc = [];
+</script>
+
+<!-- Main  -->
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
+<script src="assets/js/detect.js"></script>
+<script src="assets/js/fastclick.js"></script>
+<script src="assets/js/jquery.slimscroll.js"></script>
+<script src="assets/js/jquery.blockUI.js"></script>
+<script src="assets/js/waves.js"></script>
+<script src="assets/js/wow.min.js"></script>
+<script src="assets/js/jquery.nicescroll.js"></script>
+<script src="assets/js/jquery.scrollTo.min.js"></script>
+
+<script src="assets/js/jquery.app.js"></script>
+
+</body>
+</html>

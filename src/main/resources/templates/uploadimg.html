@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>uploadimg.html</title>
+
+    <meta name="keywords" content="keyword1,keyword2,keyword3"></meta>
+    <meta name="description" content="this is my page"></meta>
+    <meta name="content-type" content="text/html; charset=UTF-8"></meta>
+    <script src="js/jquery.js" type="text/javascript"></script>
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">
+
+    -->
+
+</head>
+
+<body>
+<form enctype="multipart/form-data" method="post" action="/testuploadimg" onsubmit="alert('上传成功')" target="nm_iframe">
+    图片<input type="file" name="file" id="pictureName"/>
+    <input type="submit" value="上传"/>
+
+</form>
+<button onclick="alert(document.getElementById('pictureName').files[0].name);">getName</button>
+<iframe id="id_iframe" name="nm_iframe" style="display:none;"></iframe>
+</body>
+</html>

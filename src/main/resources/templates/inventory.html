@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="shortcut icon" href="assets/images/favicon_1.ico">
+
+    <title>水站库存信息</title>
+
+    <link href="assets/plugins/sweetalert/dist/sweetalert.css" rel="stylesheet" type="text/css">
+
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="assets/css/core.css" rel="stylesheet" type="text/css">
+    <link href="assets/css/icons.css" rel="stylesheet" type="text/css">
+    <link href="assets/css/components.css" rel="stylesheet" type="text/css">
+    <link href="assets/css/pages.css" rel="stylesheet" type="text/css">
+    <link href="assets/css/menu.css" rel="stylesheet" type="text/css">
+    <link href="assets/css/responsive.css" rel="stylesheet" type="text/css">
+
+
+    <style>
+        .black_overlay{
+            display: none;
+            position: absolute;
+            top: 0%;
+            left: 0%;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index:1001;
+            -moz-opacity: 0.8;
+            opacity:.80;
+            filter: alpha(opacity=88);
+        }
+        .white_content {
+            display: none;
+            position: absolute;
+            top: 15%;
+            left: 40%;
+            width: 20%;
+            height: 20%;
+            padding: 20px;
+            border: 1px solid cyan;
+            background-color: white;
+            z-index:1002;
+            overflow: auto;
+        }
+    </style>
+    <script src="assets/js/modernizr.min.js"></script>
+    <script src="js/jquery.js" type="text/javascript"></script>
+    <script src="js/cookie_util.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var stationName,productName;
+        function logout() {
+            delCookie("userNickname");
+            delCookie("userType");
+            alert("您已退出登录");
+            window.location.replace("http://localhost:8088");
+        }
+        $(function(){
+            var userNick = cookie("userNickname");
+            if (userNick != "") {
+                $("#adminName").text(userNick);
+                $.ajax({
+                    url: "/findAllInventory",
+                    type: "get",
+                    dataType: "json",
+                    success: function (result) {
+                        var node1 = $("<table class='table table-bordered table-striped'>");
+                        var node2 = $("<tr></tr>");
+                        var node3 = $("<th></th>");
+                        node3.html("水站名称");
+                        var node4 = $("<th></th>");
+                        node4.html("产品名");
+                        var node5 = $("<th></th>");
+                        node5.html("库存量");
+                        var node6 = $("<th></th>");
+                        node6.html("补货");
+                        node2.append(node3);
+                        node2.append(node4);
+                        node2.append(node5);
+                        node2.append(node6);
+                        node1.append(node2);
+                        for(var i = 0;i<result.data.length;i++){
+                            node2 = $("<tr></tr>");
+                            node3 = $("<td></td>");
+                            node3.html(result.data[i].stationName);
+                            node4 = $("<td></td>");
+                            node4.html(result.data[i].productName);
+                            node5 = $("<td></td>");
+                            node5.html(result.data[i].quantity);
+                            var node6 = $("<button id='add' class='btn btn-warning btn-rounded waves-effect waves-light m-b-5'>补货</button>");
+                            node2.append(node3);
+                            node2.append(node4);
+                            node2.append(node5);
+                            node2.append(node6);
+                            node1.append(node2);
+                        }
+                        $("#info").append(node1);
+                    },
+                    error: function () {
+                        alert("请求失败");
+                    }
+                });
+                //findAllWaterStation
+                $.ajax({
+                    url: "/findAllWaterStation",
+                    type: "post",
+                    dataType: "json",
+                    success: function (result) {
+                        for(var i = 0;i<result.data.length;i++){
+                            $("#stations").append($("<option value='"+result.data[i].stationName+"'>"+result.data[i].stationName+"</option>"));
+                        }
+                    },
+                    error: function () {
+                        alert("请求失败");
+                    }
+                });
+                $("body").on("click", "table #add", function () {
+                    document.getElementById('light').style.display='block';
+                    document.getElementById('fade').style.display='block';
+                    stationName = $(this).parent().children('td').eq(0).html();
+                    productName = $(this).parent().children('td').eq(1).html();
+                });
+            } else {
+                window.location.replace("http://localhost:8088");
+            }
+        });
+
+        function buhuo(){
+            var number = $("#quantity").val();
+            if(parseInt(number)<=0){
+                alert("补货量不能为负数或者零！");
+            }else{
+                $.ajax({
+                    url: "/addInventory",
+                    type: "post",
+                    data : {"number":number,"stationName":stationName,"productName":productName},
+                    dataType: "json",
+                    success: function (result) {
+                        alert(result.msg);
+                        window.location.reload();
+                    },
+                    error: function () {
+                        alert("请求失败");
+                    }
+                });
+            }
+        }
+        function shaixuan(){
+            var stationName = $("#stations option:selected").val();
+            $.ajax({
+                url: "/findInvByStationName",
+                type: "post",
+                data : {"stationName":stationName},
+                dataType: "json",
+                success: function (result) {
+                    $("#info").empty();
+                    var node1 = $("<table class='table table-bordered table-striped'>");
+                    var node2 = $("<tr></tr>");
+                    var node3 = $("<th></th>");
+                    node3.html("水站名称");
+                    var node4 = $("<th></th>");
+                    node4.html("产品名");
+                    var node5 = $("<th></th>");
+                    node5.html("库存量");
+                    var node6 = $("<th></th>");
+                    node6.html("补货");
+                    node2.append(node3);
+                    node2.append(node4);
+                    node2.append(node5);
+                    node2.append(node6);
+                    node1.append(node2);
+                    for(var i = 0;i<result.data.length;i++){
+                        node2 = $("<tr></tr>");
+                        node3 = $("<td></td>");
+                        node3.html(result.data[i].stationName);
+                        node4 = $("<td></td>");
+                        node4.html(result.data[i].productName);
+                        node5 = $("<td></td>");
+                        node5.html(result.data[i].quantity);
+                        var node6 = $("<button id='add' class='btn btn-warning btn-rounded waves-effect waves-light m-b-5'>补货</button>");
+                        node2.append(node3);
+                        node2.append(node4);
+                        node2.append(node5);
+                        node2.append(node6);
+                        node1.append(node2);
+                    }
+                    $("#info").append(node1);
+                },
+                error: function () {
+                    alert("请求失败");
+                }
+            });
+        }
+    </script>
+</head>
+<body class="fixed-left">
+
+<!-- Begin page -->
+<div id="wrapper">
+
+    <!-- Top Bar Start -->
+    <div class="topbar">
+        <!-- LOGO -->
+        <div class="topbar-left">
+            <div class="text-center">
+                <a href="javascript:void(0)" class="logo"><i class="md md-terrain"></i> <span>iDrink </span></a>
+            </div>
+        </div>
+        <!-- Button mobile view to collapse sidebar menu -->
+        <div class="navbar navbar-default" role="navigation">
+            <div class="text-center">
+
+
+            </div>
+        </div>
+    </div>
+    <!-- Top Bar End -->
+
+
+    <!-- ========== Left Sidebar Start ========== -->
+
+    <div class="left side-menu">
+        <div class="sidebar-inner slimscrollleft">
+            <div class="user-details">
+                <div class="pull-left">
+                    <img src="assets/images/users/avatar-1.jpg" alt="" class="thumb-md img-circle">
+                </div>
+                <div class="user-info">
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="adminName"> <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+
+                            <li><a href="javascript:void(0)" onclick="logout()"><i class="md md-settings-power"></i> 注销</a></li>
+                        </ul>
+                    </div>
+
+                    <p class="text-muted m-0">管理员</p>
+                </div>
+            </div>
+            <!--- Divider -->
+            <div id="sidebar-menu">
+                <ul>
+                    <li>
+                        <a href="http://localhost:8088" class="waves-effect waves-light"><i class="md md-home"></i><span> 欢迎 </span></a>
+                    </li>
+                    <li>
+                        <a href="http://localhost:8088/goToFindEvaluate" class="waves-effect waves-light"><i class="md md-view-list"></i><span> 订单评价 </span></a>
+                    </li>
+                    <!--
+                                        <li>
+                                            <a href="http://localhost:8088/goToSalesVolume" class="waves-effect waves-light"><i class="md md-invert-colors-on"></i><span> 销量查询 </span></a>
+                                        </li>
+                    -->
+                    <!--
+                     <li>
+                         <a href="http://localhost:8088/orderQuery" class="waves-effect waves-light"><i class="md md-pages"></i><span> 订单查询 </span></a>
+                     </li>
+
+                     <li>
+                         <a href="http://localhost:8088/goToFindExpById" class="waves-effect waves-light"><i class="md md-pages"></i><span> 派送员查询 </span></a>
+                     </li>
+                     -->
+
+                    <li>
+                        <a href="http://localhost:8088/goToFindInv" class="waves-effect waves-light active"><i class="md md-pages"></i><span> 库存信息 </span></a>
+                    </li>
+
+
+
+                    <li>
+                        <a href="http://localhost:8088/goToService" class="waves-effect waves-light"><i class="md md-now-widgets"></i><span> 投诉建议 </span></a>
+                    </li>
+
+                    <li class="has_sub">
+                        <a href="#" class="waves-effect waves-light"><i class="md md-redeem"></i> <span> 商品管理 </span> <span class="pull-right"><i class="md md-add"></i></span></a>
+                        <ul class="list-unstyled">
+                            <li><a href="http://localhost:8088/listProducts">商品列表</a></li>
+                            <li><a href="http://localhost:8088/addProducts">增加商品</a></li>
+                        </ul>
+                    </li>
+
+
+
+                    <!--查看水站，增加水站，水站销量查询 -->
+                    <li class="has_sub">
+                        <a href="http://localhost:8088/waterstationmanage" class="waves-effect waves-light"><i class="md md-redeem"></i> <span> 水站管理 </span> <span class="pull-right"><i class="md md-add"></i></span></a>
+                        <ul class="list-unstyled">
+                            <li><a href="http://localhost:8088/listWaterstation">查看水站</a></li>
+                            <li><a href="http://localhost:8088/addWaterstation">增加水站</a></li>
+                            <li><a href="http://localhost:8088/salesVolumeQuery">水站销量</a></li>
+                        </ul>
+                    </li>
+
+
+
+
+
+                    <li>
+                        <a href="http://localhost:8088/listUserForAdmin" class="waves-effect waves-light"><i class="md md-now-widgets"></i><span> 用户列表 </span></a>
+                    </li>
+                </ul>
+                <div class="clearfix"></div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+    <!-- Left Sidebar End -->
+
+
+
+    <!-- ============================================================== -->
+    <!-- Start right Content here -->
+    <!-- ============================================================== -->
+    <div class="content-page">
+        <!-- Start content -->
+        <div class="content">
+            <div class="container">
+                <div>
+                    <select id="stations" class="form-control laydate-icon" style="width: auto;display:inline;">
+                        <option>请选择水站</option>
+                    </select>
+                    <button class='btn btn-info btn-rounded waves-effect waves-light m-b-5' onclick="shaixuan()">筛选</button>
+                </div>
+                <div class="panel-body" id="info">
+
+                </div>
+
+            </div> <!-- content -->
+
+            <footer class="footer text-right">
+                2018 © iDrink.
+            </footer>
+
+        </div>
+        <!-- ============================================================== -->
+        <!-- End Right content here -->
+        <!-- ============================================================== -->
+
+
+        <!-- Right Sidebar -->
+        <div class="side-bar right-bar nicescroll">
+            <h4 class="text-center">Chat</h4>
+            <div class="contact-list nicescroll">
+                <ul class="list-group contacts-list">
+                    <li class="list-group-item">
+                        <a href="#">
+                            <div class="avatar">
+                                <img src="assets/images/users/avatar-1.jpg" alt="">
+                            </div>
+                            <span class="name">Chadengle</span>
+                            <i class="fa fa-circle online"></i>
+                        </a>
+                        <span class="clearfix"></span>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#">
+                            <div class="avatar">
+                                <img src="assets/images/users/avatar-2.jpg" alt="">
+                            </div>
+                            <span class="name">Tomaslau</span>
+                            <i class="fa fa-circle online"></i>
+                        </a>
+                        <span class="clearfix"></span>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#">
+                            <div class="avatar">
+                                <img src="assets/images/users/avatar-3.jpg" alt="">
+                            </div>
+                            <span class="name">Stillnotdavid</span>
+                            <i class="fa fa-circle online"></i>
+                        </a>
+                        <span class="clearfix"></span>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#">
+                            <div class="avatar">
+                                <img src="assets/images/users/avatar-4.jpg" alt="">
+                            </div>
+                            <span class="name">Kurafire</span>
+                            <i class="fa fa-circle online"></i>
+                        </a>
+                        <span class="clearfix"></span>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#">
+                            <div class="avatar">
+                                <img src="assets/images/users/avatar-5.jpg" alt="">
+                            </div>
+                            <span class="name">Shahedk</span>
+                            <i class="fa fa-circle away"></i>
+                        </a>
+                        <span class="clearfix"></span>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#">
+                            <div class="avatar">
+                                <img src="assets/images/users/avatar-6.jpg" alt="">
+                            </div>
+                            <span class="name">Adhamdannaway</span>
+                            <i class="fa fa-circle away"></i>
+                        </a>
+                        <span class="clearfix"></span>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#">
+                            <div class="avatar">
+                                <img src="assets/images/users/avatar-7.jpg" alt="">
+                            </div>
+                            <span class="name">Ok</span>
+                            <i class="fa fa-circle away"></i>
+                        </a>
+                        <span class="clearfix"></span>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#">
+                            <div class="avatar">
+                                <img src="assets/images/users/avatar-8.jpg" alt="">
+                            </div>
+                            <span class="name">Arashasghari</span>
+                            <i class="fa fa-circle offline"></i>
+                        </a>
+                        <span class="clearfix"></span>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#">
+                            <div class="avatar">
+                                <img src="assets/images/users/avatar-9.jpg" alt="">
+                            </div>
+                            <span class="name">Joshaustin</span>
+                            <i class="fa fa-circle offline"></i>
+                        </a>
+                        <span class="clearfix"></span>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#">
+                            <div class="avatar">
+                                <img src="assets/images/users/avatar-10.jpg" alt="">
+                            </div>
+                            <span class="name">Sortino</span>
+                            <i class="fa fa-circle offline"></i>
+                        </a>
+                        <span class="clearfix"></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- /Right-bar -->
+
+    </div>
+    <!-- END wrapper -->
+
+
+
+    <script>
+        var resizefunc = [];
+    </script>
+
+    <!-- jQuery  -->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/detect.js"></script>
+    <script src="assets/js/fastclick.js"></script>
+    <script src="assets/js/jquery.slimscroll.js"></script>
+    <script src="assets/js/jquery.blockUI.js"></script>
+    <script src="assets/js/waves.js"></script>
+    <script src="assets/js/wow.min.js"></script>
+    <script src="assets/js/jquery.nicescroll.js"></script>
+    <script src="assets/js/jquery.scrollTo.min.js"></script>
+
+    <script src="assets/js/jquery.app.js"></script>
+
+    <!-- moment js  -->
+    <script src="assets/plugins/moment/moment.js"></script>
+
+    <!-- counters  -->
+    <script src="assets/plugins/waypoints/lib/jquery.waypoints.js"></script>
+    <script src="assets/plugins/counterup/jquery.counterup.min.js"></script>
+
+    <!-- sweet alert  -->
+    <script src="assets/plugins/sweetalert/dist/sweetalert.min.js"></script>
+
+
+    <!-- flot Chart -->
+    <script src="assets/plugins/flot-chart/jquery.flot.js"></script>
+    <script src="assets/plugins/flot-chart/jquery.flot.time.js"></script>
+    <script src="assets/plugins/flot-chart/jquery.flot.tooltip.min.js"></script>
+    <script src="assets/plugins/flot-chart/jquery.flot.resize.js"></script>
+    <script src="assets/plugins/flot-chart/jquery.flot.pie.js"></script>
+    <script src="assets/plugins/flot-chart/jquery.flot.selection.js"></script>
+    <script src="assets/plugins/flot-chart/jquery.flot.stack.js"></script>
+    <script src="assets/plugins/flot-chart/jquery.flot.crosshair.js"></script>
+
+    <!-- todos app  -->
+    <script src="assets/pages/jquery.todo.js"></script>
+
+    <!-- chat app  -->
+    <script src="assets/pages/jquery.chat.js"></script>
+
+    <!-- dashboard  -->
+    <script src="assets/pages/jquery.dashboard.js"></script>
+
+    <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            $('.counter').counterUp({
+                delay: 100,
+                time: 1200
+            });
+        });
+    </script>
+
+</div>
+<div id="light" class="white_content">
+    <center>
+    <h3>补货量：</h3><input class="form-control" type="number" id="quantity">
+        <p>
+            <button id="buhuo" class="btn btn-info btn-rounded waves-effect waves-light m-b-5" onclick="buhuo()">确定</button>
+            <button class="btn btn-info btn-rounded waves-effect waves-light m-b-5" onclick = "document.getElementById('light').style.display='none';document.getElementById('fade').style.display='none'">取消</button>
+        </p>
+    </center>
+</div>
+<div id="fade" class="black_overlay"></div>
+</body>
+</html>

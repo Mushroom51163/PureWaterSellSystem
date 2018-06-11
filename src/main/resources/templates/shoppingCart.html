@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link href="assets/plugins/sweetalert/dist/sweetalert.css" rel="stylesheet" type="text/css">
+    <script src="assets/plugins/sweetalert/dist/sweetalert.min.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Titillium+Web:400,200,300,700,600' rel='stylesheet'
+          type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:400,700,300' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,100' rel='stylesheet' type='text/css'>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/owl.carousel.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style type="text/css">
+        html {
+            height: 100%
+        }
+        body {
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+        #map {
+            height: 80%;
+            width: 50%;
+        }
+    </style>
+    <script type="text/javascript"
+            src="http://api.map.baidu.com/api?v=2.0&ak=4bdDZdt9K64OhxaasfIwYFGTjf7wCPZv"></script>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=4bdDZdt9K64OhxaasfIwYFGTjf7wCPZv"></script>
+
+    <![endif]-->
+    <script src="js/jquery.js"></script>
+    <script src="js/cookie_util.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#payimg").hide();
+            $('#downOrderInfo').hide();
+            var userNick = cookie("userNickname");
+            var tag = userNick=="";
+            if (!tag) {
+                $("#userNickSpan").text(userNick + "，欢迎您");
+                $("#login").hide();
+                var cookieArray = document.cookie.split("; "); //得到分割的cookie名值对
+                for (var i = 0; i < cookieArray.length; i++) {
+                    //$("#MyShoppingCart").hide();
+                    //将名和值分开
+                    var arr = cookieArray[i].split("=");
+                    //arr[0]    Cookie名字
+                    //arr[1]    Cookie值
+                    //console.log(arr[0]);
+                    //console.log(arr[0].startsWith("gwc"));
+                    var tmp = arr[0].startsWith("gwc");
+                    if(tmp){
+                        //alert(111);
+
+                        var node0 = $("<tr class='cart_item'></tr>");
+                        var node7 = $("<td class='product-remove'><a title='Remove this item' class='remove' href='javascript:void(0);' id='del'>×</a></td>");
+                        var node1 = $("<td class='product-name'></td>");
+                        node1.append(getCookie(arr[0]).split("-")[0].split("#")[1]);
+                        var node2 = $("<td class='product-price'></td>");
+                        node2.append(getCookie(arr[0]).split("-")[1]);
+                        var node3 = $("<td class='product-quantity'></td>");
+                        var node4 = $("<input type='button' class='minus' value='-' id='min'>");
+                        var node5 = $("<input type='button' class='plus' value='+'  id='add'>");
+                        node3.append(node4);
+                        node3.append($("<span class='input-text qty text' id='price' style='margin-left: 20px;margin-right: 20px;'>" + getCookie(arr[0]).split("-")[2] + "</span>"));
+                        node3.append(node5);
+                        var node6 = $("<td class='product-subtotal'><span id='sum' class='amount'>" + getCookie(arr[0]).split("-")[3] + "</span></td>");
+                        node0.append(node7);
+                        node0.append(node1);
+                        node0.append(node2);
+                        node0.append(node3);
+                        node0.append(node6);
+                        //$("#MyShoppingCart").show();
+                        $("#MyShoppingCart").append(node0);
+                    }
+                }
+                if ($("#MyShoppingCart").is(":hidden")) {
+                    $("#info").append($("<h3>购物车内暂无商品</h3>"));
+                }
+                $("#MyShoppingCart").on("click", "#min", function () {
+                    var productPrice = $(this).parent().parent().children('td').eq(2).html();
+                    var count = $(this).parent().children('#price').html();
+                    var sum = $(this).parent().parent().children('td').eq(4).children('#sum').html();
+                    if (count > 1) {
+                        $(this).parent().children('#price').html(count - 1);
+                        $(this).parent().parent().children('td').eq(4).children('#sum').html(parseInt(sum) - parseInt(productPrice));
+                        var price = parseInt(sum) - parseInt(productPrice);
+                        var name = "gwc#" + $(this).parent().parent().children('td').eq(1).html();
+                        count = $(this).parent().children('#price').html();
+                        addCookie(name, name + "-" + productPrice + "-" + count + "-" + price, 24);
+                    } else {
+                        swal("商品数量不能为0");
+                    }
+                });
+                $("#MyShoppingCart").on("click", "#add", function () {
+                    var productPrice = $(this).parent().parent().children('td').eq(2).html();
+                    var count = $(this).parent().children('#price').html();
+                    var sum = $(this).parent().parent().children('td').eq(4).children('#sum').html();
+                    $(this).parent().children('#price').html(parseInt(count) + 1);
+                    $(this).parent().parent().children('td').eq(4).children('#sum').html(parseInt(sum) + parseInt(productPrice));
+                    var price = parseInt(sum) + parseInt(productPrice);
+                    var name = "gwc#" + $(this).parent().parent().children('td').eq(1).html();
+                    count = $(this).parent().children('#price').html();
+                    console.log(sum);
+                    console.log(productPrice);
+                    console.log(price);
+                    console.log(count);
+                    addCookie(name, name + "-" + productPrice + "-" + count + "-" + price, 24);
+                });
+                $("#MyShoppingCart").on("click", "#del", function () {
+
+                    var tag = confirm("确认删除吗？");
+                    if(tag){
+                        var name = "gwc#" + $(this).parent().parent().children('td').eq(1).html();
+                        delCookie(name);
+                        swal("删除成功");
+                        $(this).parent().parent().remove();
+                    }
+                });
+            } else {
+                alert("请登录之后再使用购物车！");
+                window.location.replace("http://localhost:8088/login");
+                $("#userNickSpan").hide();
+            }
+
+        });
+
+        $("#info").on("click", "#proName a", function () {
+            var itemName = $(this).attr("value");
+            addCookie("itemName", itemName, 0.25);
+            window.location.replace("http://localhost:8088/marketitem");
+        });
+
+    </script>
+
+    <script>
+        function checkUserType() {
+            var userType = getCookie("userType");
+            if (userType == "派送员") {
+                window.location.replace("http://localhost:8088/expresser");
+            } else if (userType == null || userType == "" || userType == "用户") {
+                window.location.replace("http://localhost:8088/user");
+            } else if (userType == "总站") {
+                window.location.replace("http://localhost:8088/admin");
+            } else {
+                window.location.replace("http://localhost:8088/branch");
+            }
+        }
+        function confirmOrder(){
+            var tag = false;
+            var cookieArray = document.cookie.split("; ");
+            for (var i = 0; i < cookieArray.length; i++) {
+                //$("#MyShoppingCart").hide();
+                //将名和值分开
+                var arr = cookieArray[i].split("=");
+                //arr[0]    Cookie名字
+                //arr[1]    Cookie值
+                //console.log(arr[0]);
+                //console.log(arr[0].startsWith("gwc"));
+                var tmp = arr[0].startsWith("gwc");
+                if(tmp){
+                    tag = true;
+                }
+            }
+            if(tag){
+                var userNick = cookie("userNickname");
+                $('#downOrderInfo').show();
+                $("#confirmOrder").hide();
+                $.ajax({
+                    url: "/findUserInfoByNick",
+                    type: "post",
+                    data: {"userNick": userNick},
+                    dataType: "json",
+                    success: function (result) {
+                        if (result.status == 1) {
+                            for (var i = 0; i < result.data.length; i++) {
+                                if (result.data[i].status == "1") {
+                                    var node = $("<input type='radio' name='addr' checked='checked' value=" + result.data[i].userAddr + ">");
+                                    $("#defaultAddrRadio").append(node);
+                                    $("#defaultAddrRadio").append("收货地址：" + result.data[i].userAddr + "&nbsp;电话：" + result.data[i].userTel);
+                                    var nodep = $("<p>");
+                                    $("#defaultAddrRadio").append(nodep);
+                                } else {
+                                    var node = $("<input type='radio' name='addr' value=" + result.data[i].userAddr + ">");
+                                    $("#addrRadio").append(node);
+                                    $("#addrRadio").append("收货地址：" + result.data[i].userAddr + "&nbsp;电话：" + result.data[i].userTel);
+                                    var nodep = $("<p>");
+                                    $("#addrRadio").append(nodep);
+                                }
+                            }
+                        } else {
+                            alert(result.msg);
+                        }
+                    },
+                    error: function () {
+                        alert("请求失败");
+                    }
+                });
+
+                $.ajax({
+                    url: "/getAppTime",
+                    type: "post",
+                    dataType: "json",
+                    success: function (result) {
+                        if (result.status == 1) {
+                            for (var i = 0; i < result.data.length; i++) {
+                                if(i==0){
+                                    var node = $("<input type='radio' name='appTime' value='" + result.data[i] + "'  checked='checked'>");
+                                }else{
+                                    var node = $("<input type='radio' name='appTime' value='" + result.data[i] + "'>");
+                                }
+                                $("#appTime").append(node);
+                                $("#appTime").append(result.data[i]);
+                                var nodep = $("<p>");
+                                $("#appTime").append(nodep);
+                            }
+                        } else {
+                            alert(result.msg);
+                        }
+                    },
+                    error: function () {
+                        alert("请求失败");
+                    }
+                });
+            }else{
+                swal("购物车中没有商品！");
+            }
+
+        }
+    </script>
+</head>
+<body>
+
+<div class="header-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+
+                <a href="javascript:void(0);" id="userNickSpan" style="margin-right: 20px;"
+                   onclick="checkUserType()"> </a>
+                <a href="http://localhost:8088/login" id="login" style="margin-right: 20px;"> 登录</a>
+                <a href="http://localhost:8088/register" style="margin-right: 20px;"> 注册</a>
+            </div>
+
+            <div class="col-md-4">
+                <div class="header-right">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div> <!-- End header area -->
+
+<div class="site-branding-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="logo">
+                    <h1><a href="http://localhost:8088/home">i<span>Drink</span></a></h1>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="shopping-item">
+                    <a href="http://localhost:8088/shoppingCart"><span class="cart-amunt">购物车</span> <i
+                            class="fa fa-shopping-cart"></i></a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div> <!-- End site branding area -->
+
+<div class="mainmenu-area">
+    <div class="container">
+        <div class="row">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="http://localhost:8088/home">主页</a></li>
+                    <li><a href="http://localhost:8088/market">商城</a></li>
+                    <li class="active"><a href="http://localhost:8088/shoppingCart">购物车</a></li>
+                    <li><a href="http://localhost:8088/waterStationInfo">水站信息</a></li>
+                    <li><a href="javascript:void(0);">关于我们</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</div> <!-- End mainmenu area -->
+
+<div class="product-big-title-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="product-bit-title text-center">
+                    <h2>Shopping Cart</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="single-product-area">
+    <div class="zigzag-bottom"></div>
+    <div class="container">
+
+
+        <div class="single-product-area">
+            <div class="zigzag-bottom"></div>
+            <div class="container" id="info">
+                <table cellspacing="0" class="shop_table cart" id="MyShoppingCart">
+                    <th class="product-remove">&nbsp;</th>
+                    <th class="product-name">产品名</th>
+                    <th class="product-price">产品价格(元)</th>
+                    <th class="product-quantity">数量</th>
+                    <th class="product-subtotal">小计(元)</th>
+
+                </table>
+                <button style="margin-left: 90%" onclick="confirmOrder()" id="confirmOrder">确认订单</button>
+                <div id="downOrderInfo">
+                    <p>请选择收货地址：
+                    <div id="addr">
+                        <div id="defaultAddrRadio"></div>
+                        <div id="addrRadio"></div>
+                    </div>
+                    <p>请选择配送时间：</p>
+                    <div id="appTime"></div>
+                    <p>支付方式选择：</p>
+                    <div id="payMethod">
+                        <input type='radio' name='payMethod' value='水票' checked='checked' onclick="$('#payimg').hide();">水票
+                        <input type='radio' name='payMethod' value='现金' onclick="$('#payimg').hide();">现金
+                        <input type='radio' name='payMethod' value='线上支付' onclick="$('#payimg').show();">线上支付
+                        <img src='pic/pay.png' alt='' id="payimg">
+                    </div>
+                    <button style="margin-left: 94%" onclick="submitOrders()">结算</button>
+                </div>
+
+                <div id="map"></div>
+                <script type="text/javascript">
+
+                    var map = new BMap.Map("map");
+                    map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+
+                    var point = new BMap.Point(108.710749, 34.335688);
+                    map.centerAndZoom(point, 15);
+
+
+                    var stations = new Array(new BMap.Point(108.681153, 34.327185), new BMap.Point(108.704973, 34.348394), new BMap.Point(108.737037, 34.348517), new BMap.Point(108.726166, 34.318566), new BMap.Point(108.716468, 34.342537), new BMap.Point(108.698933, 34.342716));
+                    var stationsName = new Array("中华路加盟店", "玉泉路加盟店", "新兴路加盟店", "陈阳寨加盟店", "中宏加盟店", "陶研路加盟店");
+                    point = new BMap.Point(108.681153, 34.327185);//中华路加盟店
+                    var marker = new BMap.Marker(point);        // 创建标注
+                    map.addOverlay(marker);                     // 将标注添加到地图中
+                    marker.addEventListener("click", function () {
+                        alert("中华路加盟店    订水电话：02933324981    地址：咸阳市渭阳西路鑫太子酒店一楼门面房");
+                    });
+                    var lable = new BMap.Label("中华路加盟店", ({position: point}));
+                    map.addOverlay(lable);
+
+                    point = new BMap.Point(108.704973, 34.348394);//玉泉路加盟店
+                    var marker = new BMap.Marker(point);        // 创建标注
+                    map.addOverlay(marker);                     // 将标注添加到地图中
+                    marker.addEventListener("click", function () {
+                        alert("玉泉路加盟店    订水电话：02933558563    地址：咸阳市玉泉东路秦都区干休所门面房");
+                    });
+                    lable = new BMap.Label("玉泉路加盟店", ({position: point}));
+                    map.addOverlay(lable);
+
+                    point = new BMap.Point(108.737037, 34.348517);//新兴路加盟店
+                    var marker = new BMap.Marker(point);        // 创建标注
+                    map.addOverlay(marker);                     // 将标注添加到地图中
+                    marker.addEventListener("click", function () {
+                        alert("新兴路加盟店    订水电话：02933228963    地址：咸阳市凤凰嘉园第1幢1单元3号门面房");
+                    });
+                    lable = new BMap.Label("新兴路加盟店", ({position: point}));
+                    map.addOverlay(lable);
+
+                    point = new BMap.Point(108.726166, 34.318566);//陈阳寨加盟店
+                    var marker = new BMap.Marker(point);        // 创建标注
+                    map.addOverlay(marker);                     // 将标注添加到地图中
+                    marker.addEventListener("click", function () {
+                        alert("陈阳寨加盟店    订水电话：02933686306    地址：咸阳孔家寨170#");
+                    });
+                    lable = new BMap.Label("陈阳寨加盟店", ({position: point}));
+                    map.addOverlay(lable);
+
+                    point = new BMap.Point(108.716468, 34.342537);//中宏加盟店
+                    var marker = new BMap.Marker(point);        // 创建标注
+                    map.addOverlay(marker);                     // 将标注添加到地图中
+                    marker.addEventListener("click", function () {
+                        alert("中宏加盟店    订水电话：02933268412    地址：咸阳市中宏香榭一号楼二单元101室门面房");
+                    });
+                    lable = new BMap.Label("中宏加盟店", ({position: point}));
+                    map.addOverlay(lable);
+
+                    point = new BMap.Point(108.698933, 34.342716);//陶研路加盟店
+                    var marker = new BMap.Marker(point);        // 创建标注
+                    map.addOverlay(marker);                     // 将标注添加到地图中
+                    marker.addEventListener("click", function () {
+                        alert("陶研路加盟店    订水电话：02933335569    地址：咸阳市人民西路泰丰市场永嘉兰庭门市");
+                    });
+                    lable = new BMap.Label("陶研路加盟店", ({position: point}));
+                    map.addOverlay(lable);
+                    function submitOrders() {
+                        //alert("123");
+                        // 创建地址解析器实例
+                        var myGeo = new BMap.Geocoder();
+                        var x;
+                        var y;
+                        var address = $('#addr input:radio:checked').val();
+                        // 将地址解析结果显示在地图上,并调整地图视野
+                        myGeo.getPoint(address, function (point) {
+                            if (point) {
+                                x = point.lng;
+                                y = point.lat;
+                                var a = new BMap.Point(x, y);
+                                var min = 9999;
+                                var station;
+                                var index;
+
+                                for (var i = 0; i < stations.length; i++) {
+                                    var dis = map.getDistance(a, stations[i]).toFixed(2);
+                                    if (parseInt(dis) < min) {
+                                        min = dis;
+                                        station = stationsName[i];
+                                        index = i;
+                                    }
+                                }
+                                map.centerAndZoom(stations[index], 14);
+                                if (min >= 5000) {
+                                    alert("对不起，您的地址超出所有水站派送范围，不能为您提供服务");
+                                } else {
+                                    //alert(station);
+                                    var cookieArray = document.cookie.split("; "); //得到分割的cookie名值对
+                                    for (var i = 0; i < cookieArray.length; i++) {
+                                        //将名和值分开
+                                        var arr = cookieArray[i].split("=");
+                                        //arr[0]    Cookie名字
+                                        //arr[1]    Cookie值
+                                        if (arr[0].startsWith("gwc#")) {
+                                            var userNick = getCookie("userNickname");
+                                            var payMethod = $('#payMethod input:radio:checked').val();//付款方式
+                                            var appTime = $('#appTime input:radio:checked').val();//预约时间
+                                            var address = $('#addr input:radio:checked').val();//收货地址
+                                            var itemName = getCookie(arr[0]).split("-")[0].split("#")[1];//商品名
+                                            //console.log("单价:"+getCookie(arr[0]).split("-")[1]);
+                                            var count = getCookie(arr[0]).split("-")[2];  //数量
+                                            var total = getCookie(arr[0]).split("-")[3]; //总价
+                                            //console.log("付款方式:"+payMethod);
+                                            //console.log("预约时间:"+appTime);
+                                            //console.log("地址:"+address);
+                                            // alert(total);
+                                            $.ajax({
+                                                url: "/addOrder",
+                                                type: "post",
+                                                data: {
+                                                    "userNick": userNick,
+                                                    "itemName": itemName,
+                                                    "userAddr": address,
+                                                    "isPaied": 0,
+                                                    "stationName": station,
+                                                    "appTime": appTime,
+                                                    "payMethod": payMethod,
+                                                    "count" : count,
+                                                    "total" : total
+                                                },
+                                                dataType: "json",
+                                                success: function (result) {
+
+                                                },
+                                                error: function () {
+                                                    alert("请求失败");
+                                                }
+                                            });
+                                        }
+                                    }
+                                    var cookieArray = document.cookie.split("; "); //得到分割的cookie名值对
+                                    for (var i = 0; i < cookieArray.length; i++) {
+                                        //$("#MyShoppingCart").hide();
+                                        //将名和值分开
+                                        var arr = cookieArray[i].split("=");
+                                        //arr[0]    Cookie名字
+                                        //arr[1]    Cookie值
+                                        //console.log(arr[0]);
+                                        //console.log(arr[0].startsWith("gwc"));
+                                        var tmp = arr[0].startsWith("gwc");
+                                        if(tmp){
+                                            delCookie(arr[0]);
+                                        }
+                                    }
+                                    alert("下单成功，"+station+"将为您服务！");
+                                    window.location.replace("http://localhost:8088/goToMyOrder");
+                                }
+                            } else {
+                                alert("您输入地址没有解析到结果，请确认后重新输入");
+                            }
+                        }, "咸阳市");
+                    }
+                </script>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="product-pagination text-center">
+                    <nav>
+
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="footer-top-area">
+    <div class="zigzag-bottom"></div>
+
+</div>
+<div class="footer-bottom-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="copyright">
+                    <p>2018 © iDrink.</p>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<!-- Latest jQuery form server -->
+<!-- Bootstrap JS form CDN -->
+<script src="js/bootstrap.min.js"></script>
+
+<!-- jQuery sticky menu -->
+<script src="js/owl.carousel.min.js"></script>
+<script src="js/jquery.sticky.js"></script>
+
+<!-- jQuery easing -->
+<script src="js/jquery.easing.1.3.min.js"></script>
+
+<!-- Main Script -->
+<script src="js/main.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

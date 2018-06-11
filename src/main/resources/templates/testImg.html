@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jquery.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        function test1(){
+            var addr = $("#addr").val();
+            $("#myimg").attr("src","getImg?addr=G:/demo/src/main/resources/static/pic/"+addr);
+        }
+    </script>
+</head>
+<body>
+    <input id="addr">
+    <button onclick="test1()">getImg</button>
+    <img src="" id="myimg">
+</body>
+</html>
